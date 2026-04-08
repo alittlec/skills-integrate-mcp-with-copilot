@@ -10,6 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
+from sqlalchemy import func
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
 from database import create_db_and_tables, get_session, engine
@@ -150,7 +152,9 @@ def root():
 @app.get("/activities")
 def get_activities(session: Session = Depends(get_session)):
     """Get all activities with their current participants"""
-    statement = select(Activity)
+    statement = select(Activity).options(
+        selectinload(Activity.enrollments).selectinload(Enrollment.student)
+    )
     activities_list = session.exec(statement).all()
     
     # Convert to dictionary format for backward compatibility with frontend
@@ -175,12 +179,6 @@ def signup_for_activity(activity_name: str, email: str, session: Session = Depen
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
     
-    # Check if student is already enrolled
-    statement = select(Enrollment).where(
-        (Enrollment.activity_id == activity.id) &
-        (Enrollment.student_id == select(Student.id).where(Student.email == email))
-    )
-    
     # Get or create student
     statement = select(Student).where(Student.email == email)
     student = session.exec(statement).first()
@@ -203,7 +201,9 @@ def signup_for_activity(activity_name: str, email: str, session: Session = Depen
         )
     
     # Check if activity is at capacity
-    if activity.participant_count >= activity.max_participants:
+    count_statement = select(func.count(Enrollment.id)).where(Enrollment.activity_id == activity.id)
+    participant_count = session.exec(count_statement).one()
+    if participant_count >= activity.max_participants:
         raise HTTPException(
             status_code=400,
             detail="Activity is at maximum capacity"

@@ -1,7 +1,6 @@
 """Database configuration and session management"""
 
 import os
-from sqlalchemy.orm import Session
 from sqlmodel import SQLModel, create_engine, Session as SQLModelSession
 
 # Database configuration - defaults to SQLite for local development

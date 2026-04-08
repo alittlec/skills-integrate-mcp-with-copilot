@@ -41,11 +41,19 @@ The database file `activities.db` will be created in the `src/` directory.
 ```
 
 **PostgreSQL**
+
+Install a PostgreSQL DBAPI driver first (for example, `psycopg`):
 ```bash
-export DATABASE_URL="postgresql://user:password@localhost/school_activities"
+pip install psycopg
+export DATABASE_URL="postgresql+psycopg://user:password@localhost/school_activities"
 ```
 
 **MySQL**
+
+Install the PyMySQL driver first:
+```bash
+pip install pymysql
+```
 ```bash
 export DATABASE_URL="mysql+pymysql://user:password@localhost/school_activities"
 ```
@@ -67,7 +75,7 @@ export SQL_ECHO=true
 - **Migrations**: Use Alembic for schema versioning in production
 - **Transactions**: Add savepoint/rollback handling for complex operations
 - **Indexing**: Add database indexes on frequently queried fields
-- **Constraints**: Add database-level uniqueness constraints for enrollments
+- **Constraints**: Add additional database constraints and validation rules as needed beyond the existing enrollment uniqueness constraint
 
 ## API Compatibility
 
