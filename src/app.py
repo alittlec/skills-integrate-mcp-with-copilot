@@ -11,7 +11,6 @@ from fastapi.responses import RedirectResponse
 import os
 from pathlib import Path
 from sqlmodel import Session, select
-from datetime import datetime
 
 from database import create_db_and_tables, get_session, engine
 from models import Activity, Student, Enrollment
